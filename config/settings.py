@@ -44,6 +44,17 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    
+     # Local apps
+    "accounts",
+    "courses",
+    "enrollments",
+    "learning",
+    "assignments",
+    "quizzes",
+    "progress",
+    "notifications",
+    "dashboard",
 ]
 
 
