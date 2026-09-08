@@ -1,0 +1,45 @@
+<header>
+    <nav>
+
+        <a href="{% url 'dashboard:home' %}">
+            SkillHub
+        </a>
+
+        <div>
+
+            {% if user.is_authenticated %}
+
+                <span>
+                    Hello, {{ user.username }}
+                </span>
+
+                <a href="{% url 'accounts:profile' %}">
+                    Profile
+                </a>
+
+                <a href="{% url 'accounts:logout' %}">
+                    Logout
+                </a>
+
+                {% if user.is_staff %}
+                    <a href="/admin/">
+                        Admin
+                    </a>
+                {% endif %}
+
+            {% else %}
+
+                <a href="{% url 'accounts:login' %}">
+                    Login
+                </a>
+
+                <a href="{% url 'accounts:register' %}">
+                    Register
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </nav>
+</header>
