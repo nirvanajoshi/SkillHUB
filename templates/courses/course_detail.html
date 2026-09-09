@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ course.title }} - SkillHub
+{% endblock %}
+
+{% block content %}
+
+<h1>{{ course.title }}</h1>
+
+<p>
+    {{ course.description }}
+</p>
+
+<p>
+    <strong>Instructor:</strong>
+    {{ course.instructor.username }}
+</p>
+
+<p>
+    <strong>Level:</strong>
+    {{ course.get_level_display }}
+</p>
+
+{% if course.category %}
+    <p>
+        <strong>Category:</strong>
+        {{ course.category.name }}
+    </p>
+{% endif %}
+
+<hr>
+
+<h2>Course Content</h2>
+
+{% for chapter in course.chapters %}
+
+    <h3>
+        Chapter {{ chapter.chapter_number }}:
+        {{ chapter.title }}
+    </h3>
+
+    {% if chapter.description %}
+        <p>{{ chapter.description }}</p>
+    {% endif %}
+
+    <ol>
+
+        {% for lesson in chapter.lessons %}
+
+            <li>
+                {{ lesson.title }}
+
+                {% if lesson.is_preview %}
+                    <strong>(Preview)</strong>
+                {% endif %}
+            </li>
+
+        {% empty %}
+
+            <li>No lessons in this chapter.</li>
+
+        {% endfor %}
+
+    </ol>
+
+{% empty %}
+
+    <p>No chapters have been added yet.</p>
+
+{% endfor %}
+
+{% endblock %}

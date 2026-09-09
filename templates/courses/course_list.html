@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}
+Courses - SkillHub
+{% endblock %}
+
+{% block content %}
+
+<h1>Available Courses</h1>
+
+{% if courses %}
+
+    {% for course in courses %}
+
+        <article>
+
+            <h2>
+                <a href="{% url 'courses:course_detail' course.slug %}">
+                    {{ course.title }}
+                </a>
+            </h2>
+
+            <p>
+                {{ course.description|truncatewords:30 }}
+            </p>
+
+            <p>
+                <strong>Instructor:</strong>
+                {{ course.instructor.username }}
+            </p>
+
+            <p>
+                <strong>Level:</strong>
+                {{ course.get_level_display }}
+            </p>
+
+            {% if course.category %}
+                <p>
+                    <strong>Category:</strong>
+                    {{ course.category.name }}
+                </p>
+            {% endif %}
+
+        </article>
+
+        <hr>
+
+    {% endfor %}
+
+{% else %}
+
+    <p>No courses are available yet.</p>
+
+{% endif %}
+
+{% endblock %}
