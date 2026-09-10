@@ -19,4 +19,9 @@ urlpatterns = [
         "",
         include("dashboard.urls"),
     ),
+    
+    path(
+    "enrollments/",
+    include("enrollments.urls"),
+    ),
 ]
