@@ -31,6 +31,31 @@
 
 <hr>
 
+{% if user.is_authenticated %}
+
+    <form method="post"
+          action="{% url 'enrollments:enroll_course' course.id %}">
+
+        {% csrf_token %}
+
+        <button type="submit">
+            Enroll Now
+        </button>
+
+    </form>
+
+{% else %}
+
+    <p>
+        Please
+        <a href="{% url 'accounts:login' %}?next={{ request.path }}">
+            login
+        </a>
+        to enroll in this course.
+    </p>
+
+{% endif %}
+
 <h2>Course Content</h2>
 
 {% for chapter in course.chapters %}
