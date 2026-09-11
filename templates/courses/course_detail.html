@@ -31,6 +31,8 @@
 
 <hr>
 
+<!-- Enrollment Section -->
+
 {% if user.is_authenticated %}
 
     <form method="post"
@@ -56,43 +58,73 @@
 
 {% endif %}
 
+<hr>
+
+<!-- Course Content -->
+
 <h2>Course Content</h2>
 
 {% for chapter in course.chapters %}
 
-    <h3>
-        Chapter {{ chapter.chapter_number }}:
-        {{ chapter.title }}
-    </h3>
+    <section>
 
-    {% if chapter.description %}
-        <p>{{ chapter.description }}</p>
-    {% endif %}
+        <h3>
+            Chapter {{ chapter.chapter_number }}:
+            {{ chapter.title }}
+        </h3>
 
-    <ol>
+        {% if chapter.description %}
+            <p>
+                {{ chapter.description }}
+            </p>
+        {% endif %}
 
-        {% for lesson in chapter.lessons %}
+        {% if chapter.lessons %}
 
-            <li>
-                {{ lesson.title }}
+            <ol>
 
-                {% if lesson.is_preview %}
-                    <strong>(Preview)</strong>
-                {% endif %}
-            </li>
+                {% for lesson in chapter.lessons %}
 
-        {% empty %}
+                    <li>
 
-            <li>No lessons in this chapter.</li>
+                        <a href="{% url 'learning:lesson_detail' lesson.id %}">
+                            {{ lesson.title }}
+                        </a>
 
-        {% endfor %}
+                        {% if lesson.is_preview %}
+                            <strong>(Preview)</strong>
+                        {% endif %}
 
-    </ol>
+                    </li>
+
+                {% endfor %}
+
+            </ol>
+
+        {% else %}
+
+            <p>
+                No lessons in this chapter.
+            </p>
+
+        {% endif %}
+
+    </section>
+
+    <hr>
 
 {% empty %}
 
-    <p>No chapters have been added yet.</p>
+    <p>
+        No chapters have been added yet.
+    </p>
 
 {% endfor %}
+
+<p>
+    <a href="{% url 'courses:course_list' %}">
+        ← Back to Courses
+    </a>
+</p>
 
 {% endblock %}

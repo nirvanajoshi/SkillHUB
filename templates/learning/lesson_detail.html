@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ lesson.title }} - SkillHub
+{% endblock %}
+
+{% block content %}
+
+<h1>{{ lesson.title }}</h1>
+
+<p>
+    Course:
+    <strong>{{ course.title }}</strong>
+</p>
+
+<p>
+    Chapter:
+    <strong>{{ lesson.chapter.title }}</strong>
+</p>
+
+<hr>
+
+<div>
+    {{ lesson.content }}
+</div>
+
+{% if lesson.video_url %}
+
+    <p>
+        <a href="{{ lesson.video_url }}" target="_blank">
+            Watch Lesson Video
+        </a>
+    </p>
+
+{% endif %}
+
+<hr>
+
+{% if progress.is_completed %}
+
+    <p>
+        ✅ You have completed this lesson.
+    </p>
+
+{% else %}
+
+    <form method="post"
+          action="{% url 'learning:complete_lesson' lesson.id %}">
+
+        {% csrf_token %}
+
+        <button type="submit">
+            Mark as Completed
+        </button>
+
+    </form>
+
+{% endif %}
+
+<hr>
+
+<p>
+    <a href="{% url 'courses:course_detail' course.slug %}">
+        ← Back to Course
+    </a>
+</p>
+
+{% endblock %}
