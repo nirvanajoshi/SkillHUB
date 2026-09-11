@@ -16,12 +16,17 @@ urlpatterns = [
     ),
 
     path(
+        "enrollments/",
+        include("enrollments.urls"),
+    ),
+
+    path(
+        "learning/",
+        include("learning.urls"),
+    ),
+
+    path(
         "",
         include("dashboard.urls"),
-    ),
-    
-    path(
-    "enrollments/",
-    include("enrollments.urls"),
     ),
 ]
