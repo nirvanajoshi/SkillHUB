@@ -37,35 +37,9 @@ SkillHub
         <div class="container">
             <div class="section-heading">
                 <div><span class="kicker">Continue where you left off</span><h2>Your learning dashboard</h2></div>
-                <a href="{% url 'dashboard:dashboard_home' %}">View dashboard</a>
+                <a href="{% url 'dashboard:dashboard_home' %}">View full dashboard</a>
             </div>
-            {% if active_enrollments %}
-                <div class="course-grid">
-                    {% for enrollment in active_enrollments %}
-                        {% with progress=enrollment.course.progress_records.all %}
-                            {% for item in progress %}
-                                {% if item.student_id == user.id %}
-                                    <article class="course-card dashboard-card">
-                                        <div class="card-meta"><span>{{ enrollment.course.get_level_display }}</span>{% if enrollment.course.category %}<span class="category-tag">{{ enrollment.course.category.name }}</span>{% endif %}</div>
-                                        <h2><a href="{% url 'courses:course_detail' enrollment.course.slug %}">{{ enrollment.course.title }}</a></h2>
-                                        <div class="progress-track"><div class="progress-fill" style="width: {{ item.progress_percentage }}%"></div></div>
-                                        <p class="progress-text"><strong>{{ item.progress_percentage }}%</strong> complete</p>
-                                        <div class="card-footer"><a href="{% url 'courses:course_detail' enrollment.course.slug %}">Continue learning</a></div>
-                                    </article>
-                                {% endif %}
-                            {% empty %}
-                                <article class="course-card dashboard-card">
-                                    <h2><a href="{% url 'courses:course_detail' enrollment.course.slug %}">{{ enrollment.course.title }}</a></h2>
-                                    <p class="progress-text">Ready to begin</p>
-                                    <div class="card-footer"><a href="{% url 'courses:course_detail' enrollment.course.slug %}">Start course</a></div>
-                                </article>
-                            {% endfor %}
-                        {% endwith %}
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="empty-state">You haven't enrolled in any courses yet. <a href="{% url 'courses:course_list' %}">Browse the library</a>.</div>
-            {% endif %}
+            <p class="muted">See your enrolled courses, recent progress, and notifications in your personal dashboard.</p>
         </div>
     </section>
 {% endif %}

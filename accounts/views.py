@@ -38,12 +38,14 @@ def register(request):
 
 @login_required
 def profile(request):
+    # Ensure user has a profile
+    profile, created = Profile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
         form = ProfileForm(
             request.POST,
             request.FILES,
-            instance=request.user.profile,
+            instance=profile,
         )
 
         if form.is_valid():
@@ -57,9 +59,7 @@ def profile(request):
             return redirect("accounts:profile")
 
     else:
-        form = ProfileForm(
-            instance=request.user.profile,
-        )
+        form = ProfileForm(instance=profile)
 
     return render(
         request,
