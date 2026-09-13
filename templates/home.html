@@ -22,6 +22,7 @@ SkillHub
                 <strong>{{ enrolled_count|default:0 }}</strong>
                 <span>active course{{ enrolled_count|pluralize }} in your library</span>
                 <p>{{ completed_count|default:0 }} course{{ completed_count|pluralize }} completed</p>
+                {% if unread_count %}<p class="notification-prompt"><a href="{% url 'notifications:list' %}">{{ unread_count }} unread notification{{ unread_count|pluralize }}</a></p>{% endif %}
             {% else %}
                 <span class="kicker">Start with intention</span>
                 <strong>01</strong>
@@ -30,6 +31,44 @@ SkillHub
         </aside>
     </div>
 </section>
+
+{% if user.is_authenticated %}
+    <section class="section dashboard-intro">
+        <div class="container">
+            <div class="section-heading">
+                <div><span class="kicker">Continue where you left off</span><h2>Your learning dashboard</h2></div>
+                <a href="{% url 'dashboard:dashboard_home' %}">View dashboard</a>
+            </div>
+            {% if active_enrollments %}
+                <div class="course-grid">
+                    {% for enrollment in active_enrollments %}
+                        {% with progress=enrollment.course.progress_records.all %}
+                            {% for item in progress %}
+                                {% if item.student_id == user.id %}
+                                    <article class="course-card dashboard-card">
+                                        <div class="card-meta"><span>{{ enrollment.course.get_level_display }}</span>{% if enrollment.course.category %}<span class="category-tag">{{ enrollment.course.category.name }}</span>{% endif %}</div>
+                                        <h2><a href="{% url 'courses:course_detail' enrollment.course.slug %}">{{ enrollment.course.title }}</a></h2>
+                                        <div class="progress-track"><div class="progress-fill" style="width: {{ item.progress_percentage }}%"></div></div>
+                                        <p class="progress-text"><strong>{{ item.progress_percentage }}%</strong> complete</p>
+                                        <div class="card-footer"><a href="{% url 'courses:course_detail' enrollment.course.slug %}">Continue learning</a></div>
+                                    </article>
+                                {% endif %}
+                            {% empty %}
+                                <article class="course-card dashboard-card">
+                                    <h2><a href="{% url 'courses:course_detail' enrollment.course.slug %}">{{ enrollment.course.title }}</a></h2>
+                                    <p class="progress-text">Ready to begin</p>
+                                    <div class="card-footer"><a href="{% url 'courses:course_detail' enrollment.course.slug %}">Start course</a></div>
+                                </article>
+                            {% endfor %}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">You haven't enrolled in any courses yet. <a href="{% url 'courses:course_list' %}">Browse the library</a>.</div>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}
 
 <section class="section">
     <div class="container">

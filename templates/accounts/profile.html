@@ -5,31 +5,45 @@ My Profile - SkillHub
 {% endblock %}
 
 {% block content %}
+<div class="container">
+    <div class="profile-layout">
+        <!-- Profile header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" class="avatar-large">
+                {% else %}
+                    <div class="avatar-placeholder">{{ user.username|first|upper }}</div>
+                {% endif %}
+            </div>
+            <h1>{{ user.get_full_name|default:user.username }}</h1>
+            <p class="muted">{{ user.email }}</p>
+            <div class="profile-meta">
+                <span><strong>Role:</strong> {{ user.get_role_display }}</span>
+            </div>
+        </div>
 
-<h1>My Profile</h1>
-
-<p>
-    Username: {{ user.username }}
-</p>
-
-<p>
-    Email: {{ user.email }}
-</p>
-
-<p>
-    Role: {{ user.get_role_display }}
-</p>
-
-<form method="post" enctype="multipart/form-data">
-
-    {% csrf_token %}
-
-    {{ form.as_p }}
-
-    <button type="submit">
-        Update Profile
-    </button>
-
-</form>
+        <div class="profile-content">
+            <form method="post" enctype="multipart/form-data" class="form-card">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group{% if field.errors %} has-error{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="required">*</span>{% endif %}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <ul class="errorlist">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                        {% endif %}
+                        {% if field.help_text %}
+                            <p class="helptext">{{ field.help_text }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <div class="form-actions">
+                    <button type="submit" class="button button-green">Update profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

@@ -3,16 +3,41 @@
 {% block title %}{{ quiz.title }} - SkillHub{% endblock %}
 
 {% block content %}
-<div class="container page-heading"><span class="kicker">Quiz · {{ course.title }}</span><h1>{{ quiz.title }}</h1><p class="muted">{{ quiz.description }} Time limit: {{ quiz.time_limit }} minutes.</p></div>
-<section class="section"><div class="container"><div class="form-card">
-    <form method="post">
-        {% csrf_token %}
-        {% for question in quiz.questions.all %}
-            <fieldset class="panel" style="margin-bottom: 18px; border: 1px solid var(--line);"><legend><strong>{{ question.question_number }}. {{ question.question_text }}</strong> ({{ question.marks }} mark{{ question.marks|pluralize }})</legend>
-                {% for option in question.options.all %}<p><label><input type="radio" name="question_{{ question.id }}" value="{{ option.id }}" required> {{ option.option_text }}</label></p>{% endfor %}
-            </fieldset>
-        {% empty %}<div class="empty-state">This quiz has no questions yet.</div>{% endfor %}
-        <button class="button button-green" type="submit">Submit quiz</button>
-    </form>
-</div></div></section>
+<div class="container page-heading"><span class="kicker">Quiz · {{ course.title }}</span><h1>{{ quiz.title }}</h1><p class="muted">{{ quiz.description }}</p></div>
+<section class="section"><div class="container">
+    <div class="quiz-info-bar">
+        <div class="quiz-stat"><span class="stat-value">{{ quiz.questions.count }}</span><span class="stat-label">Questions</span></div>
+        <div class="quiz-stat"><span class="stat-value">{{ quiz.time_limit }} min</span><span class="stat-label">Time limit</span></div>
+        <div class="quiz-stat"><span class="stat-value">{{ quiz.passing_score }}%</span><span class="stat-label">To pass</span></div>
+    </div>
+
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+            {% for question in quiz.questions.all %}
+                <fieldset class="question-block">
+                    <legend>
+                        <span class="question-number">{{ question.question_number }}.</span>
+                        <span class="question-text">{{ question.question_text }}</span>
+                        <span class="question-marks">({{ question.marks }} mark{{ question.marks|pluralize }})</span>
+                    </legend>
+                    <div class="options-list">
+                        {% for option in question.options.all %}
+                            <label class="option-item">
+                                <input type="radio" name="question_{{ question.id }}" value="{{ option.id }}" required>
+                                <span class="option-marker"></span>
+                                <span class="option-text">{{ option.option_text }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+            {% empty %}
+                <div class="empty-state">This quiz has no questions yet.</div>
+            {% endfor %}
+            <div class="form-actions">
+                <button class="button button-green" type="submit">Submit quiz</button>
+            </div>
+        </form>
+    </div>
+</div></section>
 {% endblock %}

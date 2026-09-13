@@ -4,5 +4,48 @@
 
 {% block content %}
 <div class="container page-heading"><span class="kicker">Quiz complete</span><h1>{{ quiz.title }}</h1><p class="muted">Here is your result for {{ course.title }}.</p></div>
-<section class="section"><div class="container"><div class="panel" style="max-width: 560px; margin: 0 auto; text-align: center;"><span class="kicker">Your score</span><h2>{{ attempt.percentage }}%</h2><p>{% if attempt.passed %}Passed. Keep building on this momentum.{% else %}Not passed this time. Review the lesson and try again.{% endif %}</p><a class="button button-green" href="{% url 'courses:course_detail' course.slug %}">Back to course</a></div></div></section>
+<section class="section"><div class="container">
+    <div class="result-card">
+        <div class="result-header">
+            <span class="kicker">Your score</span>
+            <div class="score-display">
+                <span class="score-percentage">{{ attempt.percentage }}%</span>
+                <span class="score-label">{{ attempt.score }}/{{ attempt.score|add:0 }} marks</span>
+            </div>
+        </div>
+
+        <div class="result-stats">
+            <div class="stat">
+                <span class="stat-value">{{ correct_count|default:0 }}</span>
+                <span class="stat-label">Correct</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">{{ total_questions|default:0|subtract:correct_count|default:0 }}</span>
+                <span class="stat-label">Incorrect</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">{{ quiz.time_limit }} min</span>
+                <span class="stat-label">Time limit</span>
+            </div>
+        </div>
+
+        <div class="result-message {% if attempt.passed %}passed{% else %}failed{% endif %}">
+            {% if attempt.passed %}
+                <p><strong>Passed!</strong> You've mastered this content. Keep building on this momentum.</p>
+            {% else %}
+                <p><strong>Not passed this time.</strong> Review the lesson materials and try again when you're ready.</p>
+            {% endif %}
+        </div>
+
+        <div class="result-actions">
+            <a class="button button-green" href="{% url 'courses:course_detail' course.slug %}">Back to course</a>
+            {% if not attempt.passed %}<a class="button button-quiet" href="{% url 'quizzes:quiz_detail' quiz.id %}">Try again</a>{% endif %}
+        </div>
+    </div>
+
+    <div class="panel" style="max-width: 560px; margin: 1.5rem auto 0; text-align: center;">
+        <span class="kicker">Course progress</span>
+        <p>You've completed {{ attempt.attempts.filter(student=request.user, passed=True).count }} of the quizzes in this course.</p>
+    </div>
+</div></section>
 {% endblock %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard - SkillHub
+{% endblock %}
+
+{% block content %}
+<div class="container page-heading">
+    <span class="kicker">Your learning hub</span>
+    <h1>Welcome back, {{ user.first_name|default:user.username }}</h1>
+    <p class="muted">Track your progress, pick up where you left off, and discover what's next.</p>
+</div>
+
+<section class="section">
+    <div class="container dashboard-grid">
+        <!-- Stats overview -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <span class="stat-value">{{ enrolled_count }}</span>
+                <span class="stat-label">Active courses</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value">{{ completed_count }}</span>
+                <span class="stat-label">Completed</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value">{{ unread_count }}</span>
+                <span class="stat-label">Notifications</span>
+            </div>
+        </div>
+
+        <!-- Active enrollments -->
+        <div class="panel dashboard-panel">
+            <h2>My learning</h2>
+            <p class="muted">Courses you're actively working through</p>
+
+            {% if active_enrollments %}
+                <div class="enrollment-list">
+                    {% for enrollment in active_enrollments %}
+                        {% with progress=enrollment.course.progress_records.all %}
+                            {% for item in progress %}
+                                {% if item.student_id == request.user.id %}
+                                    <article class="enrollment-item">
+                                        <div class="enrollment-info">
+                                            <h3><a href="{% url 'courses:course_detail' enrollment.course.slug %}">{{ enrollment.course.title }}</a></h3>
+                                            <p class="muted">By {{ enrollment.course.instructor.get_full_name|default:enrollment.course.instructor.username }}</p>
+                                            <div class="progress-track">
+                                                <div class="progress-fill" style="width: {{ item.progress_percentage }}%"></div>
+                                            </div>
+                                            <p class="progress-text"><strong>{{ item.progress_percentage }}%</strong> complete</p>
+                                        </div>
+                                        <div class="enrollment-actions">
+                                            <a href="{% url 'courses:course_detail' enrollment.course.slug %}" class="button button-green">Continue</a>
+                                        </div>
+                                    </article>
+                                {% endif %}
+                            {% empty %}
+                                <article class="enrollment-item">
+                                    <div class="enrollment-info">
+                                        <h3><a href="{% url 'courses:course_detail' enrollment.course.slug %}">{{ enrollment.course.title }}</a></h3>
+                                        <p class="muted">By {{ enrollment.course.instructor.get_full_name|default:enrollment.course.instructor.username }}</p>
+                                        <p class="progress-text">Ready to begin</p>
+                                    </div>
+                                    <div class="enrollment-actions">
+                                        <a href="{% url 'courses:course_detail' enrollment.course.slug %}" class="button button-green">Start</a>
+                                    </div>
+                                </article>
+                            {% endfor %}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>You haven't enrolled in any courses yet.</p>
+                    <a href="{% url 'courses:course_list' %}" class="button button-green">Browse courses</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Recent activity -->
+        <div class="panel dashboard-panel">
+            <h2>Recent progress</h2>
+            <p class="muted">Your latest activity across courses</p>
+
+            {% if recent_activity %}
+                <div class="activity-list">
+                    {% for item in recent_activity %}
+                        <div class="activity-item">
+                            <a href="{% url 'courses:course_detail' item.course.slug %}">{{ item.course.title }}</a>
+                            <span class="activity-status">{{ item.progress_percentage }}% complete</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">No recent activity yet. Start a course to see your progress here.</div>
+            {% endif %}
+        </div>
+
+        <!-- Notifications preview -->
+        <div class="panel dashboard-panel">
+            <h2>Notifications</h2>
+            <p class="muted">Latest updates</p>
+
+            {% if unread_notifications %}
+                <div class="notifications-preview">
+                    {% for notification in unread_notifications %}
+                        <article class="notification-item {% if not notification.is_read %}unread{% endif %}">
+                            <strong>{{ notification.title }}</strong>
+                            <p>{{ notification.message|truncatewords:20 }}</p>
+                            <small>{{ notification.created_at|date:"M d, Y H:i" }}</small>
+                            {% if not notification.is_read %}
+                                <a href="{% url 'notifications:mark_read' notification.id %}" class="mark-read-link">Mark as read</a>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'notifications:list' %}" class="view-all-link">View all notifications</a>
+            {% else %}
+                <div class="empty-state">You're all caught up!</div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -6,20 +6,67 @@ Courses - SkillHub
 
 {% block content %}
 <div class="container page-heading"><span class="kicker">The library</span><h1>Courses for your next chapter.</h1><p class="muted">Choose a path, work at your pace, and keep the progress visible.</p></div>
+
 <section class="section">
     <div class="container">
+        <div class="filters-bar">
+            <form method="get" class="search-form">
+                <div class="search-input-wrapper">
+                    <input type="text" name="q" value="{{ current_search|default:"" }}" placeholder="Search courses, topics, instructors..." class="search-input">
+                    <button type="submit" class="search-btn">Search</button>
+                </div>
+                <div class="filter-group">
+                    <select name="level" class="filter-select">
+                        <option value="">All levels</option>
+                        {% for value, label in levels %}
+                            <option value="{{ value }}" {% if current_level == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="category" class="filter-select">
+                        <option value="">All categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if current_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <a href="{% url 'courses:course_list' %}" class="button-clear">Clear filters</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="results-count">
+            {% if current_search or current_level or current_category %}
+                <span>{{ courses.count }} course{{ courses.count|pluralize }} found</span>
+            {% else %}
+                <span>{{ courses.count }} course{{ courses.count|pluralize }} available</span>
+            {% endif %}
+        </div>
+
         {% if courses %}
             <div class="course-grid">
                 {% for course in courses %}
                     <article class="course-card">
-                        <div class="card-meta"><span>{{ course.get_level_display }}</span>{% if course.category %}<span>{{ course.category.name }}</span>{% endif %}</div>
+                        <div class="card-meta">
+                            <span>{{ course.get_level_display }}</span>
+                            {% if course.category %}<span class="category-tag">{{ course.category.name }}</span>{% endif %}
+                        </div>
                         <h2><a href="{% url 'courses:course_detail' course.slug %}">{{ course.title }}</a></h2>
                         <p>{{ course.description|truncatewords:30 }}</p>
-                        <div class="card-footer"><span>{{ course.instructor.get_full_name|default:course.instructor.username }}</span><a href="{% url 'courses:course_detail' course.slug %}">Open</a></div>
+                        <div class="card-footer">
+                            <span class="instructor">{{ course.instructor.get_full_name|default:course.instructor.username }}</span>
+                            <a href="{% url 'courses:course_detail' course.slug %}" class="btn-link">Open</a>
+                        </div>
                     </article>
                 {% endfor %}
             </div>
-        {% else %}<div class="empty-state">No courses are available yet.</div>{% endif %}
+        {% else %}
+            <div class="empty-state">
+                {% if current_search or current_level or current_category %}
+                    No courses match your filters. <a href="{% url 'courses:course_list' %}">Clear filters</a>.
+                {% else %}
+                    No courses are available yet.
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 </section>
 

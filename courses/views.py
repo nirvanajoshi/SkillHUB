@@ -1,6 +1,7 @@
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
-from .models import Course
+from .models import Category, Course
 
 
 def course_list(request):
@@ -11,10 +12,45 @@ def course_list(request):
         "instructor",
     )
 
+    # Search functionality
+    search_query = request.GET.get("q", "").strip()
+    if search_query:
+        courses = courses.filter(
+            Q(title__icontains=search_query)
+            | Q(description__icontains=search_query)
+            | Q(instructor__username__icontains=search_query)
+            | Q(category__name__icontains=search_query)
+        )
+
+    # Filter by level
+    level = request.GET.get("level", "")
+    if level:
+        courses = courses.filter(level=level)
+
+    # Filter by category
+    category_id = request.GET.get("category", "")
+    if category_id:
+        courses = courses.filter(category_id=category_id)
+
+    # Get all categories for filter dropdown
+    categories = Category.objects.all()
+
+    # Get unique levels for filter
+    levels = Course.Level.choices
+
+    context = {
+        "courses": courses,
+        "categories": categories,
+        "levels": levels,
+        "current_search": search_query,
+        "current_level": level,
+        "current_category": category_id,
+    }
+
     return render(
         request,
         "courses/course_list.html",
-        {"courses": courses},
+        context,
     )
 
 

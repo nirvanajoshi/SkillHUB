@@ -5,9 +5,62 @@ My Courses - SkillHub
 {% endblock %}
 
 {% block content %}
-<div class="container page-heading"><span class="kicker">Your library</span><h1>My learning</h1><p class="muted">Everything you are actively working through, in one place.</p></div>
+<div class="container page-heading"><span class="kicker">Your library</span><h1>My learning</h1><p class="muted">Everything you're actively working through, in one place.</p></div>
+
 <section class="section"><div class="container">
-    {% if enrollments %}<div class="course-grid">{% for enrollment in enrollments %}<article class="course-card"><div class="card-meta"><span>{{ enrollment.get_status_display }}</span></div><h2><a href="{% url 'courses:course_detail' enrollment.course.slug %}">{{ enrollment.course.title }}</a></h2><p class="muted">Started {{ enrollment.enrolled_at|date:"M d, Y" }}</p>{% with progress=enrollment.course.progress_records.all %}{% for item in progress %}{% if item.student_id == request.user.id %}<p><strong>{{ item.progress_percentage }}%</strong> complete</p><div class="progress-track"><div class="progress-fill" style="width: {{ item.progress_percentage }}%"></div></div>{% endif %}{% empty %}<p class="muted">Ready to begin</p>{% endfor %}{% endwith %}<div class="card-footer"><a href="{% url 'courses:course_detail' enrollment.course.slug %}">Continue learning</a></div></article>{% endfor %}</div>{% else %}<div class="empty-state">You have not enrolled in a course yet. <a href="{% url 'courses:course_list' %}">Browse the library</a>.</div>{% endif %}
+    {% if enrollments %}
+        <div class="my-courses-grid">
+            {% for enrollment in enrollments %}
+                {% with progress=enrollment.course.progress_records.all %}
+                    {% for item in progress %}
+                        {% if item.student_id == request.user.id %}
+                            <article class="my-course-card">
+                                <div class="card-meta">
+                                    <span>{{ enrollment.course.get_level_display }}</span>
+                                    {% if enrollment.course.category %}<span class="category-tag">{{ enrollment.course.category.name }}</span>{% endif %}
+                                </div>
+                                <h2><a href="{% url 'courses:course_detail' enrollment.course.slug %}">{{ enrollment.course.title }}</a></h2>
+                                <p class="muted">Started {{ enrollment.enrolled_at|date:"M d, Y" }}</p>
+                                <div class="progress-section">
+                                    <div class="progress-header">
+                                        <span><strong>{{ item.progress_percentage }}%</strong> complete</span>
+                                        <span class="progress-meta">{{ item.completed_lessons }}/{{ item.total_lessons }} lessons</span>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div class="progress-fill" style="width: {{ item.progress_percentage }}%"></div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="{% url 'courses:course_detail' enrollment.course.slug %}" class="btn-link">Continue learning</a>
+                                </div>
+                            </article>
+                        {% endif %}
+                    {% empty %}
+                        <article class="my-course-card">
+                            <div class="card-meta">
+                                <span>{{ enrollment.course.get_level_display }}</span>
+                                {% if enrollment.course.category %}<span class="category-tag">{{ enrollment.course.category.name }}</span>{% endif %}
+                            </div>
+                            <h2><a href="{% url 'courses:course_detail' enrollment.course.slug %}">{{ enrollment.course.title }}</a></h2>
+                            <p class="muted">Started {{ enrollment.enrolled_at|date:"M d, Y" }}</p>
+                            <div class="progress-section">
+                                <p class="not-started">Ready to begin</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{% url 'courses:course_detail' enrollment.course.slug %}" class="btn-link">Start course</a>
+                            </div>
+                        </article>
+                    {% endfor %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            <p>You haven't enrolled in any courses yet.</p>
+            <a href="{% url 'courses:course_list' %}">Browse the library</a>
+        </div>
+    {% endif %}
 </div></section>
 
 {% endblock %}

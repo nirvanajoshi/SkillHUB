@@ -4,14 +4,63 @@
 
 {% block content %}
 <div class="container page-heading"><span class="kicker">Assignment · {{ course.title }}</span><h1>{{ assignment.title }}</h1><p class="muted">{{ assignment.description }}</p></div>
-<section class="section"><div class="container"><div class="form-card">
-    {% if assignment.instructions %}<div class="panel"><h2>Instructions</h2><p>{{ assignment.instructions }}</p></div>{% endif %}
-    <p class="muted">Maximum marks: {{ assignment.max_marks }}{% if assignment.due_date %} · Due {{ assignment.due_date|date:"M d, Y H:i" }}{% endif %}</p>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <p><label for="answer">Your answer</label><textarea id="answer" name="answer" required>{{ submission.answer }}</textarea></p>
-        <p><label for="file">Supporting file</label><input id="file" type="file" name="file"></p>
-        <button class="button button-green" type="submit">Submit assignment</button>
-    </form>
-</div></div></section>
+
+<section class="section"><div class="container">
+    <div class="assignment-container">
+        {% if assignment.instructions %}
+            <div class="panel instructions-panel">
+                <h2>Instructions</h2>
+                <p>{{ assignment.instructions }}</p>
+            </div>
+        {% endif %}
+
+        <div class="assignment-info-bar">
+            <div class="info-item">
+                <span class="info-value">{{ assignment.max_marks }}</span>
+                <span class="info-label">Maximum marks</span>
+            </div>
+            {% if assignment.due_date %}
+                <div class="info-item">
+                    <span class="info-value">{{ assignment.due_date|date:"M d, Y" }}</span>
+                    <span class="info-label">Due date</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-value">{{ assignment.due_date|date:"H:i" }}</span>
+                    <span class="info-label">Time</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-card">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="answer">Your answer</label>
+                    <textarea id="answer" name="answer" required placeholder="Type your answer here...">{{ submission.answer }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="file">Supporting file (optional)</label>
+                    <input id="file" type="file" name="file">
+                    <p class="helptext">Upload any additional files that support your answer.</p>
+                </div>
+                <div class="form-actions">
+                    <button class="button button-green" type="submit">Submit assignment</button>
+                </div>
+            </form>
+
+            {% if submission and submission.submitted_at %}
+                <div class="submission-status{% if submission.status == 'graded' %} graded{% endif %}">
+                    <span class="kicker">Submission status</span>
+                    <p><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}</p>
+                    {% if submission.status == 'graded' %}
+                        <p><strong>Marks:</strong> {{ submission.marks }}/{{ assignment.max_marks }}</p>
+                        {% if submission.feedback %}<p><strong>Feedback:</strong> {{ submission.feedback }}</p>{% endif %}
+                    {% else %}
+                        <p><strong>Status:</strong> {{ submission.get_status_display }}</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div></section>
 {% endblock %}
