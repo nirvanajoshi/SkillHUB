@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from courses.models import Lesson
 from enrollments.models import Enrollment
+from progress.models import CourseProgress
 
 from .models import LessonProgress
 
@@ -22,14 +23,13 @@ def lesson_detail(request, lesson_id):
 
     course = lesson.chapter.course
 
-    # Check whether the student is enrolled
-    enrollment = Enrollment.objects.filter(
+    is_enrolled = Enrollment.objects.filter(
         student=request.user,
         course=course,
         status=Enrollment.Status.ACTIVE,
-    ).first()
+    ).exists()
 
-    if not enrollment:
+    if not is_enrolled:
         messages.error(
             request,
             "You must be enrolled in this course to access this lesson.",
@@ -40,7 +40,7 @@ def lesson_detail(request, lesson_id):
             slug=course.slug,
         )
 
-    progress, created = LessonProgress.objects.get_or_create(
+    lesson_progress, created = LessonProgress.objects.get_or_create(
         student=request.user,
         lesson=lesson,
     )
@@ -51,7 +51,7 @@ def lesson_detail(request, lesson_id):
         {
             "lesson": lesson,
             "course": course,
-            "progress": progress,
+            "progress": lesson_progress,
         },
     )
 
@@ -69,14 +69,13 @@ def complete_lesson(request, lesson_id):
 
     course = lesson.chapter.course
 
-    # Check enrollment
-    enrollment = Enrollment.objects.filter(
+    is_enrolled = Enrollment.objects.filter(
         student=request.user,
         course=course,
         status=Enrollment.Status.ACTIVE,
-    ).first()
+    ).exists()
 
-    if not enrollment:
+    if not is_enrolled:
         messages.error(
             request,
             "You must be enrolled in this course.",
@@ -89,18 +88,42 @@ def complete_lesson(request, lesson_id):
 
     if request.method == "POST":
 
-        progress, created = LessonProgress.objects.get_or_create(
+        lesson_progress, created = LessonProgress.objects.get_or_create(
             student=request.user,
             lesson=lesson,
         )
 
-        progress.is_completed = True
-        progress.completed_at = timezone.now()
-        progress.save()
+        lesson_progress.is_completed = True
+        lesson_progress.completed_at = timezone.now()
+        lesson_progress.save()
+
+        # Count all lessons in the course
+        total_lessons = Lesson.objects.filter(
+            chapter__course=course,
+        ).count()
+
+        # Count completed lessons by this student
+        completed_lessons = LessonProgress.objects.filter(
+            student=request.user,
+            lesson__chapter__course=course,
+            is_completed=True,
+        ).count()
+
+        # Create or update course progress
+        course_progress, created = CourseProgress.objects.get_or_create(
+            student=request.user,
+            course=course,
+        )
+
+        course_progress.total_lessons = total_lessons
+        course_progress.completed_lessons = completed_lessons
+
+        course_progress.calculate_progress()
+        course_progress.save()
 
         messages.success(
             request,
-            "Lesson marked as completed.",
+            "Lesson marked as completed. Your course progress has been updated.",
         )
 
     return redirect(

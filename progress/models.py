@@ -53,36 +53,39 @@ class CourseProgress(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.course.title}"
+    
 
     def calculate_progress(self):
-        if self.total_lessons > 0:
-            lesson_progress = (
-                self.completed_lessons / self.total_lessons
-            ) * 100
-        else:
-            lesson_progress = 0
 
-        if self.total_assignments > 0:
-            assignment_progress = (
-                self.completed_assignments / self.total_assignments
-            ) * 100
-        else:
-            assignment_progress = 0
+    progress_values = []
 
-        if self.total_quizzes > 0:
-            quiz_progress = (
-                self.completed_quizzes / self.total_quizzes
-            ) * 100
-        else:
-            quiz_progress = 0
+    if self.total_lessons > 0:
+        lesson_progress = (
+            self.completed_lessons / self.total_lessons
+        ) * 100
 
+        progress_values.append(lesson_progress)
+
+    if self.total_assignments > 0:
+        assignment_progress = (
+            self.completed_assignments / self.total_assignments
+        ) * 100
+
+        progress_values.append(assignment_progress)
+
+    if self.total_quizzes > 0:
+        quiz_progress = (
+            self.completed_quizzes / self.total_quizzes
+        ) * 100
+
+        progress_values.append(quiz_progress)
+
+    if progress_values:
         self.progress_percentage = round(
-            (
-                lesson_progress
-                + assignment_progress
-                + quiz_progress
-            ) / 3,
+            sum(progress_values) / len(progress_values),
             2,
         )
+    else:
+        self.progress_percentage = 0
 
-        return self.progress_percentage
+    return self.progress_percentage

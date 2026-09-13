@@ -21,18 +21,55 @@ My Courses - SkillHub
             </h2>
 
             <p>
-                Instructor:
+                <strong>Instructor:</strong>
                 {{ enrollment.course.instructor.username }}
             </p>
 
             <p>
-                Enrolled:
+                <strong>Enrolled:</strong>
                 {{ enrollment.enrolled_at|date:"M d, Y" }}
             </p>
 
             <p>
-                Status:
+                <strong>Status:</strong>
                 {{ enrollment.get_status_display }}
+            </p>
+
+            {% with progress=enrollment.course.progress_records.all %}
+
+                {% for course_progress in progress %}
+
+                    {% if course_progress.student_id == request.user.id %}
+
+                        <p>
+                            <strong>Course Progress:</strong>
+                            {{ course_progress.progress_percentage }}%
+                        </p>
+
+                        <progress
+                            value="{{ course_progress.progress_percentage }}"
+                            max="100">
+                        </progress>
+
+                    {% endif %}
+
+                {% empty %}
+
+                    <p>
+                        <strong>Course Progress:</strong>
+                        0%
+                    </p>
+
+                    <progress value="0" max="100"></progress>
+
+                {% endfor %}
+
+            {% endwith %}
+
+            <p>
+                <a href="{% url 'courses:course_detail' enrollment.course.slug %}">
+                    Continue Learning
+                </a>
             </p>
 
         </article>

@@ -45,16 +45,21 @@ def enroll_course(request, course_id):
 
 @login_required
 def my_courses(request):
+
     enrollments = Enrollment.objects.filter(
         student=request.user,
         status=Enrollment.Status.ACTIVE,
     ).select_related(
         "course",
         "course__instructor",
+    ).prefetch_related(
+        "course__progress_records",
     )
 
     return render(
         request,
         "enrollments/my_courses.html",
-        {"enrollments": enrollments},
+        {
+            "enrollments": enrollments,
+        },
     )
