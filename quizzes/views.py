@@ -97,11 +97,11 @@ def quiz_detail(request, quiz_id):
 		return render(
 			request,
 			"quizzes/result.html",
-			{
-				"quiz": quiz,
+			{                    "quiz": quiz,
 				"attempt": attempt,
 				"course": course,
 				"correct_count": correct_count,
+				"incorrect_count": total_questions - correct_count,
 				"total_questions": total_questions,
 			}
 		)

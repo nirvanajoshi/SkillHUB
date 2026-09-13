@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
+from enrollments.models import Enrollment
 from .models import Category, Course
 
 
@@ -66,10 +67,12 @@ def course_detail(request, slug):
         is_published=True,
     )
 
-    is_enrolled = request.user.is_authenticated and course.enrollments.filter(
-        student=request.user,
-        status="active",
-    ).exists()
+    is_enrolled = False
+    if request.user.is_authenticated:
+        is_enrolled = course.enrollments.filter(
+            student=request.user,
+            status=Enrollment.Status.ACTIVE,
+        ).exists()
 
     return render(
         request,
