@@ -5,126 +5,34 @@
 {% endblock %}
 
 {% block content %}
-
-<h1>{{ course.title }}</h1>
-
-<p>
-    {{ course.description }}
-</p>
-
-<p>
-    <strong>Instructor:</strong>
-    {{ course.instructor.username }}
-</p>
-
-<p>
-    <strong>Level:</strong>
-    {{ course.get_level_display }}
-</p>
-
-{% if course.category %}
-    <p>
-        <strong>Category:</strong>
-        {{ course.category.name }}
-    </p>
-{% endif %}
-
-<hr>
-
-<!-- Enrollment Section -->
-
-{% if user.is_authenticated %}
-
-    <form method="post"
-          action="{% url 'enrollments:enroll_course' course.id %}">
-
-        {% csrf_token %}
-
-        <button type="submit">
-            Enroll Now
-        </button>
-
-    </form>
-
-{% else %}
-
-    <p>
-        Please
-        <a href="{% url 'accounts:login' %}?next={{ request.path }}">
-            login
-        </a>
-        to enroll in this course.
-    </p>
-
-{% endif %}
-
-<hr>
-
-<!-- Course Content -->
-
-<h2>Course Content</h2>
-
-{% for chapter in course.chapters %}
-
-    <section>
-
-        <h3>
-            Chapter {{ chapter.chapter_number }}:
-            {{ chapter.title }}
-        </h3>
-
-        {% if chapter.description %}
-            <p>
-                {{ chapter.description }}
-            </p>
-        {% endif %}
-
-        {% if chapter.lessons %}
-
-            <ol>
-
-                {% for lesson in chapter.lessons %}
-
-                    <li>
-
-                        <a href="{% url 'learning:lesson_detail' lesson.id %}">
-                            {{ lesson.title }}
-                        </a>
-
-                        {% if lesson.is_preview %}
-                            <strong>(Preview)</strong>
-                        {% endif %}
-
-                    </li>
-
-                {% endfor %}
-
-            </ol>
-
-        {% else %}
-
-            <p>
-                No lessons in this chapter.
-            </p>
-
-        {% endif %}
-
-    </section>
-
-    <hr>
-
-{% empty %}
-
-    <p>
-        No chapters have been added yet.
-    </p>
-
-{% endfor %}
-
-<p>
-    <a href="{% url 'courses:course_list' %}">
-        ← Back to Courses
-    </a>
-</p>
+<div class="container page-heading"><span class="kicker">{{ course.get_level_display }}{% if course.category %} · {{ course.category.name }}{% endif %}</span><h1>{{ course.title }}</h1><p class="muted">{{ course.description }}</p><p>Led by <strong>{{ course.instructor.get_full_name|default:course.instructor.username }}</strong></p></div>
+<section class="section">
+    <div class="container content-grid">
+        <div class="panel">
+            <h2>Inside this course</h2>
+            {% for chapter in course.chapters.all %}
+                <section class="chapter">
+                    <h3>Chapter {{ chapter.chapter_number }} · {{ chapter.title }}</h3>
+                    {% if chapter.description %}<p class="muted">{{ chapter.description }}</p>{% endif %}
+                    {% for lesson in chapter.lessons.all %}
+                        <div class="lesson-row"><span>{{ lesson.lesson_number }}. {{ lesson.title }}</span>{% if lesson.is_preview %}<span class="badge">Preview</span>{% endif %}</div>
+                    {% empty %}<p class="muted">Lessons are being prepared.</p>{% endfor %}
+                </section>
+            {% empty %}<div class="empty-state">Course content is being prepared.</div>{% endfor %}
+        </div>
+        <aside class="panel">
+            <span class="kicker">Ready when you are</span>
+            <h2>Start learning today.</h2>
+            {% if is_enrolled %}
+                <p class="muted">You are enrolled in this course. Pick up where you left off.</p>
+                <a class="button button-green" href="{% url 'enrollments:my_courses' %}">Open my learning</a>
+            {% elif user.is_authenticated %}
+                <p class="muted">Enroll to unlock the complete learning path.</p>
+                <form method="post" action="{% url 'enrollments:enroll_course' course.id %}">{% csrf_token %}<button class="button button-green" type="submit">Enroll now</button></form>
+            {% else %}<p class="muted">Create a free account to enroll and track your progress.</p><a class="button button-dark" href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}">Log in to enroll</a>{% endif %}
+        </aside>
+    </div>
+</section>
+<div class="container"><a href="{% url 'courses:course_list' %}">Back to courses</a></div>
 
 {% endblock %}

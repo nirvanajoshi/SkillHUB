@@ -53,39 +53,37 @@ class CourseProgress(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.course.title}"
-    
 
     def calculate_progress(self):
+        progress_values = []
 
-    progress_values = []
+        if self.total_lessons > 0:
+            lesson_progress = (
+                min(self.completed_lessons, self.total_lessons)
+                / self.total_lessons
+            ) * 100
+            progress_values.append(lesson_progress)
 
-    if self.total_lessons > 0:
-        lesson_progress = (
-            self.completed_lessons / self.total_lessons
-        ) * 100
+        if self.total_assignments > 0:
+            assignment_progress = (
+                min(self.completed_assignments, self.total_assignments)
+                / self.total_assignments
+            ) * 100
+            progress_values.append(assignment_progress)
 
-        progress_values.append(lesson_progress)
+        if self.total_quizzes > 0:
+            quiz_progress = (
+                min(self.completed_quizzes, self.total_quizzes)
+                / self.total_quizzes
+            ) * 100
+            progress_values.append(quiz_progress)
 
-    if self.total_assignments > 0:
-        assignment_progress = (
-            self.completed_assignments / self.total_assignments
-        ) * 100
+        if progress_values:
+            self.progress_percentage = round(
+                sum(progress_values) / len(progress_values),
+                2,
+            )
+        else:
+            self.progress_percentage = 0
 
-        progress_values.append(assignment_progress)
-
-    if self.total_quizzes > 0:
-        quiz_progress = (
-            self.completed_quizzes / self.total_quizzes
-        ) * 100
-
-        progress_values.append(quiz_progress)
-
-    if progress_values:
-        self.progress_percentage = round(
-            sum(progress_values) / len(progress_values),
-            2,
-        )
-    else:
-        self.progress_percentage = 0
-
-    return self.progress_percentage
+        return self.progress_percentage

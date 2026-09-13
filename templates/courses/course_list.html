@@ -5,52 +5,22 @@ Courses - SkillHub
 {% endblock %}
 
 {% block content %}
-
-<h1>Available Courses</h1>
-
-{% if courses %}
-
-    {% for course in courses %}
-
-        <article>
-
-            <h2>
-                <a href="{% url 'courses:course_detail' course.slug %}">
-                    {{ course.title }}
-                </a>
-            </h2>
-
-            <p>
-                {{ course.description|truncatewords:30 }}
-            </p>
-
-            <p>
-                <strong>Instructor:</strong>
-                {{ course.instructor.username }}
-            </p>
-
-            <p>
-                <strong>Level:</strong>
-                {{ course.get_level_display }}
-            </p>
-
-            {% if course.category %}
-                <p>
-                    <strong>Category:</strong>
-                    {{ course.category.name }}
-                </p>
-            {% endif %}
-
-        </article>
-
-        <hr>
-
-    {% endfor %}
-
-{% else %}
-
-    <p>No courses are available yet.</p>
-
-{% endif %}
+<div class="container page-heading"><span class="kicker">The library</span><h1>Courses for your next chapter.</h1><p class="muted">Choose a path, work at your pace, and keep the progress visible.</p></div>
+<section class="section">
+    <div class="container">
+        {% if courses %}
+            <div class="course-grid">
+                {% for course in courses %}
+                    <article class="course-card">
+                        <div class="card-meta"><span>{{ course.get_level_display }}</span>{% if course.category %}<span>{{ course.category.name }}</span>{% endif %}</div>
+                        <h2><a href="{% url 'courses:course_detail' course.slug %}">{{ course.title }}</a></h2>
+                        <p>{{ course.description|truncatewords:30 }}</p>
+                        <div class="card-footer"><span>{{ course.instructor.get_full_name|default:course.instructor.username }}</span><a href="{% url 'courses:course_detail' course.slug %}">Open</a></div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}<div class="empty-state">No courses are available yet.</div>{% endif %}
+    </div>
+</section>
 
 {% endblock %}

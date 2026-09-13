@@ -30,8 +30,16 @@ def course_detail(request, slug):
         is_published=True,
     )
 
+    is_enrolled = request.user.is_authenticated and course.enrollments.filter(
+        student=request.user,
+        status="active",
+    ).exists()
+
     return render(
         request,
         "courses/course_detail.html",
-        {"course": course},
+        {
+            "course": course,
+            "is_enrolled": is_enrolled,
+        },
     )

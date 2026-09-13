@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - SkillHub{% endblock %}
+
+{% block content %}
+<div class="container page-heading"><span class="kicker">Your inbox</span><h1>Notifications</h1></div>
+<section class="section"><div class="container"><div class="panel">
+    {% for notification in notifications %}
+        <article class="lesson-row{% if not notification.is_read %}" style="background: var(--green-soft); padding-left: 12px; padding-right: 12px;{% endif %}">
+            <div><strong>{{ notification.title }}</strong><p class="muted">{{ notification.message }}</p><small>{{ notification.created_at|date:"M d, Y H:i" }}</small></div>
+            {% if not notification.is_read %}<a href="{% url 'notifications:mark_read' notification.id %}">Mark read</a>{% endif %}
+        </article>
+    {% empty %}<div class="empty-state">You are all caught up.</div>{% endfor %}
+</div></div></section>
+{% endblock %}

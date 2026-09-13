@@ -1,48 +1,52 @@
-<header>
-    <nav>
-        <a href="{% url 'courses:course_list' %}">
-            Courses
-        </a>
-
-        <a href="{% url 'dashboard:home' %}">
-            SkillHub
-        </a>
-
-        <div>
-
-            {% if user.is_authenticated %}
-
-                <span>
-                    Hello, {{ user.username }}
-                </span>
-
-                <a href="{% url 'accounts:profile' %}">
-                    Profile
-                </a>
-
-                <a href="{% url 'accounts:logout' %}">
-                    Logout
-                </a>
-
-                {% if user.is_staff %}
-                    <a href="/admin/">
-                        Admin
-                    </a>
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}SkillHub{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="container nav-shell" aria-label="Main navigation">
+            <a class="brand" href="{% url 'dashboard:home' %}">
+                <span class="brand-mark">S</span>
+                <span>SkillHub</span>
+            </a>
+            <div class="nav-links">
+                <a href="{% url 'courses:course_list' %}">Explore</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'enrollments:my_courses' %}">My learning</a>
+                    <a href="{% url 'accounts:profile' %}" class="nav-user">{{ user.username }}</a>
+                    <a href="{% url 'accounts:logout' %}" class="button button-quiet">Log out</a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}">Log in</a>
+                    <a href="{% url 'accounts:register' %}" class="button button-dark">Get started</a>
                 {% endif %}
+            </div>
+        </nav>
+    </header>
 
-            {% else %}
+    <main>
+        {% if messages %}
+            <div class="container message-stack" aria-live="polite">
+                {% for message in messages %}
+                    <div class="message message-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
 
-                <a href="{% url 'accounts:login' %}">
-                    Login
-                </a>
-
-                <a href="{% url 'accounts:register' %}">
-                    Register
-                </a>
-
-            {% endif %}
-
+    <footer class="site-footer">
+        <div class="container footer-content">
+            <strong>SkillHub</strong>
+            <span>Learn deliberately. Build confidently.</span>
         </div>
-
-    </nav>
-</header>
+    </footer>
+</body>
+</html>

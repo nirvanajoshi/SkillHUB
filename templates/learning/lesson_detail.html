@@ -5,64 +5,18 @@
 {% endblock %}
 
 {% block content %}
-
-<h1>{{ lesson.title }}</h1>
-
-<p>
-    Course:
-    <strong>{{ course.title }}</strong>
-</p>
-
-<p>
-    Chapter:
-    <strong>{{ lesson.chapter.title }}</strong>
-</p>
-
-<hr>
-
-<div>
-    {{ lesson.content }}
-</div>
-
-{% if lesson.video_url %}
-
-    <p>
-        <a href="{{ lesson.video_url }}" target="_blank">
-            Watch Lesson Video
-        </a>
-    </p>
-
-{% endif %}
-
-<hr>
-
-{% if progress.is_completed %}
-
-    <p>
-        ✅ You have completed this lesson.
-    </p>
-
-{% else %}
-
-    <form method="post"
-          action="{% url 'learning:complete_lesson' lesson.id %}">
-
-        {% csrf_token %}
-
-        <button type="submit">
-            Mark as Completed
-        </button>
-
-    </form>
-
-{% endif %}
-
-<hr>
-
-<p>
-    <a href="{% url 'courses:course_detail' course.slug %}">
-        ← Back to Course
-    </a>
-</p>
+<div class="container page-heading"><span class="kicker">{{ course.title }} · {{ lesson.chapter.title }}</span><h1>{{ lesson.title }}</h1></div>
+<section class="section"><div class="container content-grid">
+    <article class="panel"><div>{{ lesson.content|linebreaks }}</div>{% if lesson.video_url %}<p><a class="button button-quiet" href="{{ lesson.video_url }}" target="_blank" rel="noreferrer">Watch lesson video</a></p>{% endif %}</article>
+    <aside>
+        <div class="panel">
+            {% if progress.is_completed %}<span class="badge">Completed</span><p>You have completed this lesson.</p>{% else %}<p class="muted">Finished this lesson?</p><form method="post" action="{% url 'learning:complete_lesson' lesson.id %}">{% csrf_token %}<button class="button button-green" type="submit">Mark completed</button></form>{% endif %}
+        </div>
+        {% with assignments=lesson.assignments.all quizzes=lesson.quizzes.all %}
+            {% if assignments or quizzes %}<div class="panel"><h3>Activities</h3>{% for assignment in assignments %}<p><a href="{% url 'assignments:assignment_detail' assignment.id %}">{{ assignment.title }}</a></p>{% endfor %}{% for quiz in quizzes %}<p><a href="{% url 'quizzes:quiz_detail' quiz.id %}">{{ quiz.title }}</a></p>{% endfor %}</div>{% endif %}
+        {% endwith %}
+    </aside>
+</div></section>
+<div class="container"><a href="{% url 'courses:course_detail' course.slug %}">Back to course</a></div>
 
 {% endblock %}

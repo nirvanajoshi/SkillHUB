@@ -5,29 +5,53 @@ SkillHub
 {% endblock %}
 
 {% block content %}
+<section class="hero">
+    <div class="container hero-grid">
+        <div class="hero-copy">
+            <span class="kicker">A better way to keep learning</span>
+            <h1>Make progress you can feel.</h1>
+            <p>Focused courses, practical lessons, and a clear place to build the skills that move your work forward.</p>
+            <div class="hero-actions">
+                <a class="button button-green" href="{% url 'courses:course_list' %}">Explore courses</a>
+                {% if not user.is_authenticated %}<a class="button button-quiet" href="{% url 'accounts:register' %}">Create an account</a>{% endif %}
+            </div>
+        </div>
+        <aside class="hero-note">
+            {% if user.is_authenticated %}
+                <span class="kicker">Your learning space</span>
+                <strong>{{ enrolled_count|default:0 }}</strong>
+                <span>active course{{ enrolled_count|pluralize }} in your library</span>
+                <p>{{ completed_count|default:0 }} course{{ completed_count|pluralize }} completed</p>
+            {% else %}
+                <span class="kicker">Start with intention</span>
+                <strong>01</strong>
+                <span>Pick one useful skill and give it your next focused hour.</span>
+            {% endif %}
+        </aside>
+    </div>
+</section>
 
-<h1>Welcome to SkillHub</h1>
-
-<p>Your learning management platform.</p>
-
-{% if user.is_authenticated %}
-    <p>You are logged in as {{ user.username }}.</p>
-
-    <p>
-        <a href="{% url 'accounts:profile' %}">
-            View Profile
-        </a>
-    </p>
-{% else %}
-    <p>You are not logged in.</p>
-
-    <a href="{% url 'accounts:login' %}">
-        Login
-    </a>
-
-    <a href="{% url 'accounts:register' %}">
-        Register
-    </a>
-{% endif %}
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <div><span class="kicker">Curated for momentum</span><h2>Find your next course</h2></div>
+            <a href="{% url 'courses:course_list' %}">View all courses</a>
+        </div>
+        {% if featured_courses %}
+            <div class="course-grid">
+                {% for course in featured_courses %}
+                    <article class="course-card">
+                        <div class="card-meta"><span>{{ course.get_level_display }}</span>{% if course.category %}<span>{{ course.category.name }}</span>{% endif %}</div>
+                        <h2><a href="{% url 'courses:course_detail' course.slug %}">{{ course.title }}</a></h2>
+                        <p>{{ course.description|truncatewords:20 }}</p>
+                        <div class="card-footer"><span>By {{ course.instructor.get_full_name|default:course.instructor.username }}</span><a href="{% url 'courses:course_detail' course.slug %}">View course</a></div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">Courses are being prepared. Check back soon.</div>
+        {% endif %}
+    </div>
+</section>
 
 {% endblock %}

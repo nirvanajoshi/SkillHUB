@@ -25,6 +25,10 @@ urlpatterns = [
         include("learning.urls"),
     ),
 
+    path("assignments/", include("assignments.urls")),
+    path("quizzes/", include("quizzes.urls")),
+    path("notifications/", include("notifications.urls")),
+
     path(
         "",
         include("dashboard.urls"),
